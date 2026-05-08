@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="description" content="Flappy Bird Game - HTML5 Canvas. Tap, click, or press space to fly. Avoid pipes and beat your high score!">
-    <meta name="author" content="Your GitHub Repo">
-    <title>🐦 Flappy Bird | Classic Arcade Game</title>
+    <meta name="description" content="Flappy Bird Game with Music & Sound Effects - HTML5 Canvas. Tap/click/space to fly, avoid pipes, and enjoy the beat!">
+    <meta name="author" content="GitHub Repo">
+    <title>🎵 Flappy Bird | Music Edition 🎮</title>
     <style>
         * {
             margin: 0;
@@ -17,24 +17,24 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #0b3b44 0%, #06222b 100%);
+            background: linear-gradient(135deg, #0a2f3a 0%, #041a22 100%);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Courier New', 'VT323', 'Fira Code', monospace;
+            font-family: 'Courier New', 'VT323', monospace;
             touch-action: manipulation;
             padding: 16px;
         }
 
-        .game-container {
-            background: rgba(0, 0, 0, 0.35);
+        .game-wrapper {
+            background: rgba(0, 0, 0, 0.4);
             border-radius: 48px;
-            padding: 20px 20px 24px 20px;
+            padding: 20px;
             backdrop-filter: blur(2px);
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.6);
         }
 
-        .game-panel {
+        .game-container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -51,22 +51,23 @@
             height: auto;
         }
 
-        .scoreboard {
+        .stats-bar {
             margin-top: 20px;
             display: flex;
             justify-content: center;
             gap: 40px;
-            background: #1a2e30;
+            background: #1a2e30e6;
             padding: 8px 32px;
             border-radius: 60px;
-            color: #ffea9e;
+            color: #ffe6a3;
             text-shadow: 0 2px 0 #7a4c1a;
             font-weight: bold;
             font-size: 1.5rem;
             border: 1px solid #f5c542;
+            backdrop-filter: blur(4px);
         }
 
-        .score-item, .best-item {
+        .score-box, .best-box {
             display: flex;
             gap: 8px;
             align-items: baseline;
@@ -74,7 +75,7 @@
 
         .label {
             font-size: 1rem;
-            color: #cde6e6;
+            color: #d4f1f9;
             text-shadow: none;
         }
 
@@ -85,19 +86,29 @@
             font-family: monospace;
         }
 
+        .controls {
+            display: flex;
+            gap: 16px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
         button {
             background: #f5a623;
             border: none;
             font-family: inherit;
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: bold;
-            padding: 8px 28px;
-            margin-top: 18px;
+            padding: 8px 20px;
             border-radius: 40px;
             color: #1f2e2e;
             cursor: pointer;
             transition: 0.1s linear;
-            box-shadow: 0 5px 0 #a35117;
+            box-shadow: 0 4px 0 #a35117;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         button:active {
@@ -105,69 +116,66 @@
             box-shadow: 0 2px 0 #a35117;
         }
 
+        .music-toggle {
+            background: #3a6b5e;
+            box-shadow: 0 4px 0 #1e4a3b;
+        }
+
         .help-text {
-            margin-top: 14px;
-            font-size: 0.8rem;
-            background: #0b1c20cc;
-            padding: 6px 18px;
-            border-radius: 80px;
-            color: #e2f0f5;
-            font-weight: bold;
-        }
-
-        .footer {
             margin-top: 12px;
-            font-size: 0.65rem;
-            color: #8db3bd;
-            text-align: center;
+            font-size: 0.75rem;
+            background: #0b1c20cc;
+            padding: 6px 16px;
+            border-radius: 80px;
+            color: #c6e9f2;
         }
 
-        @media (max-width: 500px) {
-            .scoreboard { gap: 24px; padding: 6px 20px; }
+        @media (max-width: 520px) {
+            .stats-bar { gap: 24px; padding: 6px 20px; }
             .value { font-size: 1.6rem; }
-            button { font-size: 1rem; padding: 6px 20px; }
+            button { font-size: 0.85rem; padding: 6px 14px; }
         }
     </style>
 </head>
 <body>
-<div class="game-container">
-    <div class="game-panel">
-        <canvas id="gameCanvas" width="400" height="600"></canvas>
-        <div class="scoreboard">
-            <div class="score-item">
+<div class="game-wrapper">
+    <div class="game-container">
+        <canvas id="flappyCanvas" width="400" height="600"></canvas>
+        <div class="stats-bar">
+            <div class="score-box">
                 <span class="label">🐦 SCORE</span>
-                <span class="value" id="scoreValue">0</span>
+                <span class="value" id="scoreDisplay">0</span>
             </div>
-            <div class="best-item">
+            <div class="best-box">
                 <span class="label">🏆 BEST</span>
-                <span class="value" id="bestValue">0</span>
+                <span class="value" id="bestDisplay">0</span>
             </div>
         </div>
-        <button id="restartBtn">🔄 RESTART</button>
-        <div class="help-text">
-            ␣ SPACE &nbsp;|&nbsp; 🖱️ CLICK &nbsp;|&nbsp; 👆 TAP → FLY
+        <div class="controls">
+            <button id="restartBtn">🔄 RESTART</button>
+            <button id="musicBtn" class="music-toggle">🎵 MUSIC ON</button>
         </div>
-        <div class="footer">
-            🎮 GitHub Pages Ready | Classic Flappy Bird
+        <div class="help-text">
+            🎧 SPACE / CLICK / TAP → FLY  |  MUSIC + SOUND FX 🎶
         </div>
     </div>
 </div>
 
 <script>
     (function(){
-        // ----- CANVAS SETUP -----
-        const canvas = document.getElementById('gameCanvas');
+        // ---------- CANVAS SETUP ----------
+        const canvas = document.getElementById('flappyCanvas');
         const ctx = canvas.getContext('2d');
         const W = 400, H = 600;
 
-        // ----- GAME PARAMETERS -----
+        // ---------- GAME PHYSICS ----------
         const GRAVITY = 0.18;
-        const JUMP = -4.65;
+        const JUMP_POWER = -4.65;
         const PIPE_W = 52;
         const PIPE_GAP = 130;
         const PIPE_SPACING = 215;
-        const GROUND = H - 42;
-        const CEILING = 6;
+        const GROUND_Y = H - 42;
+        const CEILING_Y = 6;
         const BIRD_X = 70;
         const BIRD_R = 12;
         const SCROLL_SPEED = 2.5;
@@ -176,65 +184,215 @@
         let birdY = H / 2;
         let birdVel = 0;
         let birdAngle = 0;
-
-        // Game state
-        let pipes = [];
         let score = 0;
-        let best = 0;
-        let isActive = true;
+        let bestScore = 0;
+        let gameActive = true;
 
-        // ----- HELPER FUNCTIONS -----
+        // Pipes
+        let pipes = [];
+
+        // ---------- AUDIO SYSTEM (Web Audio API) ----------
+        let audioCtx = null;
+        let isMusicOn = true;
+        let musicInterval = null;
+        let isAudioAllowed = false;
+
+        // Sound effects (using Oscillator for retro beeps)
+        function playJumpSound() {
+            if (!isMusicOn || !isAudioAllowed) return;
+            try {
+                const ctxAudio = audioCtx;
+                if (!ctxAudio) return;
+                const osc = ctxAudio.createOscillator();
+                const gain = ctxAudio.createGain();
+                osc.connect(gain);
+                gain.connect(ctxAudio.destination);
+                osc.type = 'sine';
+                osc.frequency.value = 880;
+                gain.gain.value = 0.15;
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, ctxAudio.currentTime + 0.25);
+                osc.stop(ctxAudio.currentTime + 0.25);
+            } catch(e) { console.warn("audio err", e); }
+        }
+
+        function playScoreSound() {
+            if (!isMusicOn || !isAudioAllowed) return;
+            try {
+                const ctxAudio = audioCtx;
+                if (!ctxAudio) return;
+                const osc = ctxAudio.createOscillator();
+                const gain = ctxAudio.createGain();
+                osc.connect(gain);
+                gain.connect(ctxAudio.destination);
+                osc.type = 'square';
+                osc.frequency.value = 660;
+                gain.gain.value = 0.12;
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, ctxAudio.currentTime + 0.2);
+                osc.stop(ctxAudio.currentTime + 0.2);
+            } catch(e) {}
+        }
+
+        function playCrashSound() {
+            if (!isMusicOn || !isAudioAllowed) return;
+            try {
+                const ctxAudio = audioCtx;
+                if (!ctxAudio) return;
+                const osc = ctxAudio.createOscillator();
+                const gain = ctxAudio.createGain();
+                osc.connect(gain);
+                gain.connect(ctxAudio.destination);
+                osc.type = 'sawtooth';
+                osc.frequency.value = 220;
+                gain.gain.value = 0.2;
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, ctxAudio.currentTime + 0.4);
+                osc.stop(ctxAudio.currentTime + 0.4);
+            } catch(e) {}
+        }
+
+        // ----- CHIP TUNE BACKGROUND MUSIC (Looping melody) -----
+        function startBackgroundMusic() {
+            if (!isMusicOn || !isAudioAllowed) return;
+            if (musicInterval) clearInterval(musicInterval);
+            // Simple 8-bit style arpeggio loop every 2.4 seconds
+            let step = 0;
+            const melodyNotes = [
+                523.25, 587.33, 659.25, 523.25,
+                493.88, 523.25, 587.33, 659.25,
+                784.00, 698.46, 659.25, 587.33,
+                523.25, 493.88, 440.00, 493.88
+            ];
+            const durations = [0.15, 0.15, 0.3, 0.2, 0.15, 0.15, 0.3, 0.2, 0.2, 0.15, 0.15, 0.2, 0.25, 0.15, 0.3, 0.4];
+            
+            function playNextNote() {
+                if (!isMusicOn || !isAudioAllowed || !gameActive) {
+                    return;
+                }
+                try {
+                    const ctxM = audioCtx;
+                    if (!ctxM) return;
+                    const now = ctxM.currentTime;
+                    const osc = ctxM.createOscillator();
+                    const gain = ctxM.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctxM.destination);
+                    osc.type = 'triangle';
+                    osc.frequency.value = melodyNotes[step % melodyNotes.length];
+                    gain.gain.value = 0.08;
+                    osc.start();
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + durations[step % durations.length]);
+                    osc.stop(now + durations[step % durations.length]);
+                    step++;
+                } catch(e) {}
+            }
+            
+            musicInterval = setInterval(() => {
+                if (isMusicOn && isAudioAllowed && gameActive) {
+                    playNextNote();
+                } else if (!gameActive && isMusicOn && isAudioAllowed) {
+                    // stop playing melody when game over, but keep silent
+                }
+            }, 300);
+            // initial tiny delay
+            setTimeout(() => { if(isMusicOn && isAudioAllowed && gameActive) playNextNote(); }, 50);
+        }
+
+        function stopBackgroundMusic() {
+            if (musicInterval) {
+                clearInterval(musicInterval);
+                musicInterval = null;
+            }
+        }
+
+        // toggle music & sounds
+        function toggleMusic() {
+            isMusicOn = !isMusicOn;
+            const btn = document.getElementById('musicBtn');
+            if (isMusicOn) {
+                btn.innerHTML = '🎵 MUSIC ON';
+                btn.style.background = '#3a6b5e';
+                if (isAudioAllowed && gameActive) {
+                    startBackgroundMusic();
+                }
+            } else {
+                btn.innerHTML = '🔇 MUSIC OFF';
+                btn.style.background = '#7a5a4a';
+                stopBackgroundMusic();
+            }
+        }
+
+        // Initialize WebAudio after first user interaction (browser policy)
+        function initAudioOnFirstTap() {
+            if (audioCtx && isAudioAllowed) return;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                // resume and create silent buffer to unlock
+                const silent = audioCtx.createOscillator();
+                const silentGain = audioCtx.createGain();
+                silent.connect(silentGain);
+                silentGain.connect(audioCtx.destination);
+                silentGain.gain.value = 0;
+                silent.start();
+                silent.stop(audioCtx.currentTime + 0.001);
+                audioCtx.resume().then(() => {
+                    isAudioAllowed = true;
+                    if (isMusicOn && gameActive) startBackgroundMusic();
+                }).catch(e=>console.log);
+            } catch(e){ console.warn("WebAudio not supported"); }
+        }
+
+        // ---------- GAME MECHANICS ----------
         function loadBest() {
             try {
-                let saved = localStorage.getItem('flappyBest');
-                if (saved && !isNaN(parseInt(saved))) best = parseInt(saved);
-                else best = 0;
-            } catch(e) { best = 0; }
-            document.getElementById('bestValue').innerText = best;
+                let saved = localStorage.getItem('flappyMusicBest');
+                if (saved && !isNaN(parseInt(saved))) bestScore = parseInt(saved);
+                else bestScore = 0;
+            } catch(e) { bestScore = 0; }
+            document.getElementById('bestDisplay').innerText = bestScore;
         }
 
         function saveBest() {
-            try { localStorage.setItem('flappyBest', best); } catch(e) {}
+            try { localStorage.setItem('flappyMusicBest', bestScore); } catch(e) {}
         }
 
         function updateUI() {
-            document.getElementById('scoreValue').innerText = score;
-            if (score > best) {
-                best = score;
-                document.getElementById('bestValue').innerText = best;
+            document.getElementById('scoreDisplay').innerText = score;
+            if (score > bestScore) {
+                bestScore = score;
+                document.getElementById('bestDisplay').innerText = bestScore;
                 saveBest();
             }
         }
 
         function randomPipeTop() {
-            let minTop = 45;
-            let maxTop = GROUND - PIPE_GAP - 30;
-            if (maxTop <= minTop) return minTop;
-            return Math.floor(Math.random() * (maxTop - minTop + 1) + minTop);
+            let minT = 45;
+            let maxT = GROUND_Y - PIPE_GAP - 30;
+            if (maxT <= minT) return minT;
+            return Math.floor(Math.random() * (maxT - minT + 1) + minT);
         }
 
         function createPipe(xPos) {
-            let top = randomPipeTop();
-            return {
-                x: xPos,
-                topH: top,
-                bottomY: top + PIPE_GAP,
-                counted: false
-            };
+            let topH = randomPipeTop();
+            return { x: xPos, topH: topH, bottomY: topH + PIPE_GAP, counted: false };
         }
 
         function resetGame() {
-            isActive = true;
+            gameActive = true;
             score = 0;
             birdY = H / 2;
             birdVel = 0;
             birdAngle = 0;
             updateUI();
-
             pipes = [];
             let startX = W + 45;
-            for (let i = 0; i < 3; i++) {
-                pipes.push(createPipe(startX + i * PIPE_SPACING));
+            for (let i = 0; i < 3; i++) pipes.push(createPipe(startX + i * PIPE_SPACING));
+            
+            // restart music if needed
+            if (isMusicOn && isAudioAllowed) {
+                stopBackgroundMusic();
+                startBackgroundMusic();
             }
         }
 
@@ -256,6 +414,7 @@
                     p.counted = true;
                     score++;
                     updateUI();
+                    playScoreSound();   // score chime
                 }
             }
             pipes = pipes.filter(p => p.x + PIPE_W > 0);
@@ -267,10 +426,8 @@
             let right = BIRD_X + BIRD_R;
             let top = birdY - BIRD_R;
             let bottom = birdY + BIRD_R;
-
-            if (bottom >= GROUND) return true;
-            if (top <= CEILING) return true;
-
+            if (bottom >= GROUND_Y) return true;
+            if (top <= CEILING_Y) return true;
             for (let p of pipes) {
                 let pipeL = p.x;
                 let pipeR = p.x + PIPE_W;
@@ -283,7 +440,7 @@
         }
 
         function updateBird() {
-            if (!isActive) return;
+            if (!gameActive) return;
             birdVel += GRAVITY;
             birdY += birdVel;
             let target = birdVel * 0.19;
@@ -293,25 +450,36 @@
         }
 
         function handleCollisions() {
-            if (!isActive) return;
-            if (checkCollision()) isActive = false;
+            if (!gameActive) return;
+            if (checkCollision()) {
+                gameActive = false;
+                playCrashSound();
+                if (isMusicOn && isAudioAllowed) {
+                    stopBackgroundMusic(); // stop melody on game over
+                }
+            }
         }
 
         function flap() {
-            if (!isActive) return;
-            birdVel = JUMP;
+            if (!gameActive) return;
+            birdVel = JUMP_POWER;
             birdAngle = -0.5;
+            playJumpSound();
         }
 
         function restart() {
             resetGame();
-            isActive = true;
+            gameActive = true;
             birdVel = 0;
             birdY = H / 2;
             birdAngle = 0;
+            if (isMusicOn && isAudioAllowed) {
+                stopBackgroundMusic();
+                startBackgroundMusic();
+            }
         }
 
-        // ----- DRAW EVERYTHING (clean visuals)-----
+        // ---------- RENDERING (retro style) ----------
         function drawSky() {
             let grad = ctx.createLinearGradient(0, 0, 0, H);
             grad.addColorStop(0, '#7ad7f0');
@@ -332,13 +500,13 @@
 
         function drawGround() {
             ctx.fillStyle = '#876b42';
-            ctx.fillRect(0, GROUND, W, H - GROUND);
+            ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
             ctx.fillStyle = '#5b3e1f';
-            for (let i=0; i<12; i++) ctx.fillRect(i*40, GROUND-6, 22, 8);
+            for (let i=0; i<12; i++) ctx.fillRect(i*40, GROUND_Y-6, 22, 8);
             ctx.fillStyle = '#8cb36c';
-            ctx.fillRect(0, GROUND-7, W, 8);
+            ctx.fillRect(0, GROUND_Y-7, W, 8);
             ctx.fillStyle = '#dbb05c';
-            ctx.fillRect(0, GROUND-3, W, 4);
+            ctx.fillRect(0, GROUND_Y-3, W, 4);
         }
 
         function drawPipes() {
@@ -349,7 +517,6 @@
                 ctx.fillRect(p.x-6, p.topH-38, PIPE_W+12, 38);
                 ctx.fillStyle = '#f3bc5c';
                 ctx.fillRect(p.x-4, p.topH-32, PIPE_W+8, 20);
-
                 let botY = p.bottomY;
                 let botH = H - botY;
                 ctx.fillStyle = '#2b6e3f';
@@ -394,18 +561,18 @@
             ctx.restore();
         }
 
-        function drawGameMessages() {
-            if (!isActive) {
+        function drawMessages() {
+            if (!gameActive) {
                 ctx.font = 'bold 26px "Courier New", monospace';
                 ctx.fillStyle = '#fff7cf';
                 ctx.fillText('💀 GAME OVER', W/2-100, H/2-45);
-                ctx.font = '15px monospace';
+                ctx.font = '14px monospace';
                 ctx.fillStyle = '#fbe39c';
-                ctx.fillText('click RESTART to fly again', W/2-110, H/2+25);
+                ctx.fillText('press RESTART', W/2-55, H/2+25);
             } else if (score === 0) {
-                ctx.font = 'bold 15px monospace';
+                ctx.font = 'bold 14px monospace';
                 ctx.fillStyle = '#ffffd0';
-                ctx.fillText('⬆️  PRESS SPACE / CLICK  ⬆️', W/2-130, H-55);
+                ctx.fillText('⬆️  TAP / SPACE / CLICK  ⬆️', W/2-135, H-55);
             }
         }
 
@@ -414,12 +581,12 @@
             drawPipes();
             drawGround();
             drawBird();
-            drawGameMessages();
+            drawMessages();
         }
 
-        // ----- UPDATE LOOP -----
-        function update() {
-            if (isActive) {
+        // ---------- GAME LOOP ----------
+        function updateGame() {
+            if (gameActive) {
                 updateBird();
                 updatePipes();
                 handleCollisions();
@@ -427,13 +594,13 @@
         }
 
         function gameLoop() {
-            update();
+            updateGame();
             render();
             requestAnimationFrame(gameLoop);
         }
 
-        // ----- EVENT HANDLERS (GitHub pages friendly)-----
-        function handleJump(e) {
+        // ---------- EVENT HANDLERS + AUDIO UNLOCK ----------
+        function onJump(e) {
             if (e.type === 'keydown') {
                 if (e.code === 'Space' || e.code === 'ArrowUp') {
                     e.preventDefault();
@@ -445,26 +612,48 @@
             }
         }
 
-        function handleCanvasTap(e) {
+        function canvasTapHandler(e) {
             e.preventDefault();
             flap();
         }
 
-        function handleRestart() {
+        function restartHandler() {
             restart();
         }
 
+        // Audio unlock + init (first any tap on canvas / window)
+        function enableAudioOnUserGesture() {
+            if (!audioCtx) {
+                initAudioOnFirstTap();
+            } else if (audioCtx && !isAudioAllowed) {
+                audioCtx.resume().then(() => {
+                    isAudioAllowed = true;
+                    if (isMusicOn && gameActive) startBackgroundMusic();
+                }).catch(e=>{});
+            }
+        }
+
         function bindEvents() {
-            window.addEventListener('keydown', handleJump);
-            canvas.addEventListener('click', handleCanvasTap);
-            canvas.addEventListener('touchstart', handleCanvasTap, { passive: false });
-            document.getElementById('restartBtn').addEventListener('click', () => handleRestart());
+            window.addEventListener('keydown', onJump);
+            canvas.addEventListener('click', (e) => { canvasTapHandler(e); enableAudioOnUserGesture(); });
+            canvas.addEventListener('touchstart', (e) => { canvasTapHandler(e); enableAudioOnUserGesture(); }, { passive: false });
+            document.getElementById('restartBtn').addEventListener('click', () => { restartHandler(); enableAudioOnUserGesture(); });
+            document.getElementById('musicBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                enableAudioOnUserGesture();
+                toggleMusic();
+            });
             document.body.addEventListener('keydown', (e) => {
                 if (e.code === 'Space' || e.code === 'ArrowUp') e.preventDefault();
             });
+            // unlock on first window click
+            window.addEventListener('click', function once() {
+                enableAudioOnUserGesture();
+                window.removeEventListener('click', once);
+            });
         }
 
-        // ----- INIT GAME -----
+        // ---------- INIT ----------
         function init() {
             loadBest();
             resetGame();
